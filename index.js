@@ -112,14 +112,54 @@ const puppeteer = require('puppeteer');
     const res = await page.goto(url);
     const text = await res.text()
     const dom = await new JSDOM(text)
-    for(let i = 3; i < 43; i += 2){
+
+    const scrollDown = async () => {
+      page.$eval(`#pane + div > div > div > div> div:nth-child(2) > div > div > div > div > div > div > div:last-child`, (e) => e.scrollIntoView({ behavior: 'auto', block: 'end', inline: 'end' }))
+    }
+
+    // try this out tomorrow
+    async function autoScroll(page){
+      await page.evaluate(async () => {
+          await new Promise((resolve, reject) => {
+              var totalHeight = 0;
+              var distance = 300;
+              var timer = setInterval(() => {
+                  var scrollHeight = document.body.scrollHeight;
+                  window.scrollBy(0, distance);
+                  totalHeight += distance;
+  
+                  if(totalHeight >= scrollHeight - window.innerHeight){
+                      clearInterval(timer);
+                      resolve();
+                  }
+              }, 100);
+          });
+      });
+  }
+
+    for(var i = 3; i < 43; i += 2){
+      console.log(i)
+      try{
+        await page.waitForSelector(`#pane + div > div > div > div> div:nth-child(2) > div > div > div > div > div > div > div:nth-child(${i}) > div > a`)
+      }
+      catch{
+      // await scrollDown()
+      }
+      
       await page.click(`#pane + div > div > div > div> div:nth-child(2) > div > div > div > div > div > div > div:nth-child(${i}) > div > a`)
       await checkSite()
-      // await page.click("#pan + div  > div > div > div > div > div > div > div > div > div > div > div > div:nth-child(3) > span > button")
+      await page.click(`[aria-label^="Back"]`)
+      // await scrollDown()
+      // await scrollDown()
+
+      
     }
     
     
   }
+
+
+  
 
   // await checkSites([`https://www.google.com/maps/place/Talia's+Tuscan+Table/@26.3728166,-80.1523849,13z/data=!4m9!1m2!2m1!1srestaurants!3m5!1s0x88d8e1c3fe6ad2bb:0x9ce3aa4bad89137e!8m2!3d26.386941!4d-80.080988!15sCgtyZXN0YXVyYW50c1oNIgtyZXN0YXVyYW50c5IBEml0YWxpYW5fcmVzdGF1cmFudA`])
   await clickResult('https://www.google.com/maps/search/Restaurants/@26.3728081,-80.1523849,13z/data=!3m1!4b1')

@@ -10,7 +10,7 @@ const puppeteer = require('puppeteer');
   let companies = []
   const start = Date.now()
 
-    const browser = await puppeteer.launch({ headless: false }); 
+    const browser = await puppeteer.launch({ headless: true }); 
   const page = await browser.newPage();
   await page.setRequestInterception(true)
   page.on('request',(req) =>{
@@ -32,11 +32,14 @@ const puppeteer = require('puppeteer');
     await page.waitForSelector('.fontHeadlineLarge > span')
     
     // THIS GRABS THE SITE BAYBEEEE 
+
+    // currently always running catch for some reason.
     try{
       const site = await page.$eval('[aria-label^="Website:"] > div div + div > div', (el) => el.innerHTML)
       console.log(site)      
       if(site === 'business.site'){
         companyName = await page.$eval('.fontHeadlineLarge > span', (el) => el.innerHTML)
+        site = site
         await checkPhone()
       }
       
@@ -55,7 +58,8 @@ const puppeteer = require('puppeteer');
       console.log(phone)
       companies.push({
         companyName: companyName,
-        phone: phone
+        phone: phone,
+        site: site || "no website listed"
       })
       console.log(companies)
     }
@@ -63,7 +67,7 @@ const puppeteer = require('puppeteer');
       console.log('no number listed')
       companies.push({
         companyName: companyName,
-        phone: `No number listed`
+        phone: phone || 'no number listed'
       })
       console.log(companies)
     }
@@ -104,20 +108,28 @@ const puppeteer = require('puppeteer');
       });
   }
 
-    for(var i = 3; i < 43; i += 2){
+    for(var i = 3; i < 15; i += 2){
       console.log(i)
       try{
         await page.waitForSelector(`#pane + div > div > div > div> div:nth-child(2) > div > div > div > div > div > div > div:nth-child(${i}) > div > a`)
       }
       catch{
       await scrollDown()
+      // await scrollDown()
+     
+
+
       await page.waitForSelector(`#pane + div > div > div > div> div:nth-child(2) > div > div > div > div > div > div > div:nth-child(${i}) > div > a`)
+      // await scrollDown()
+      // await page.waitForSelector(`#pane + div > div > div > div> div:nth-child(2) > div > div > div > div > div > div > div:nth-child(${i}) > div > a`)
+      // await scrollDown()
+
       }
       
       await page.click(`#pane + div > div > div > div> div:nth-child(2) > div > div > div > div > div > div > div:nth-child(${i}) > div > a`)
       await checkSite()
       await page.click(`[aria-label^="Back"]`)
-      await scrollDown()
+      // await scrollDown()
       await scrollDown()
       
 

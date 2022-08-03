@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "jsdom": "^19.0.0",
-    "puppeteer": "^14.2.1"
+    "puppeteer": "^14.2.1",
+    "puppeteer-autoscroll-down": "^1.1.1"
   }
 }
